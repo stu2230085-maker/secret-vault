@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src ipc: http://ipc.localhost ipc://localhost http://localhost:1420 ws://localhost:1420; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>Secret Vault</title>
+  </head>
+  <body>
+    <main id="app">
+      <section id="lock-screen" class="lock-screen">
+        <div class="lock-card">
+          <div class="lock-header">
+            <div>
+              <p class="eyebrow">PRIVATE STORAGE</p>
+              <h1>Secret Vault</h1>
+            </div>
+            <span id="env-badge" class="badge hidden">MOCK MODE</span>
+          </div>
+          <p class="muted">Open an encrypted <code>.vlt</code> container or create a new one.</p>
+          <form id="open-form" class="stack">
+            <label>
+              Vault file
+              <input id="vault-path" value="vault.vlt" autocomplete="off" required />
+            </label>
+            <label>
+              Password
+              <input id="open-password" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit">Open vault</button>
+          </form>
+          <details>
+            <summary>Create a new vault</summary>
+            <form id="create-form" class="stack details-form">
+              <label>
+                Main password
+                <input id="create-password" type="password" autocomplete="new-password" required />
+              </label>
+              <label>
+                Self-destruct password (optional)
+                <input id="burn-password" type="password" autocomplete="new-password" />
+              </label>
+              <label>
+                Self-destruct response
+                <select id="disguise-mode">
+                  <option value="error">Show a password error</option>
+                  <option value="decoy">Open an empty decoy vault</option>
+                </select>
+              </label>
+              <button type="submit">Create vault</button>
+            </form>
+          </details>
+          <p id="lock-message" class="message" role="status"></p>
+        </div>
+      </section>
+
+      <section id="vault-screen" class="vault-screen hidden">
+        <header class="topbar">
+          <div class="topbar-title">
+            <p class="eyebrow">PRIVATE STORAGE</p>
+            <div class="title-row">
+              <h1>Secret Vault</h1>
+              <span id="vault-stats-pill" class="badge">0 files</span>
+              <span id="autolock-pill" class="badge muted-badge">Auto-lock: 5m</span>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button id="import-button" class="secondary" type="button">Import files</button>
+            <input id="import-input" type="file" multiple class="hidden" />
+            <button id="settings-button" class="secondary" type="button">Security &amp; Settings</button>
+            <button id="compact-button" class="secondary" type="button">Compact</button>
+            <button id="lock-button" class="secondary" type="button">Lock</button>
+          </div>
+        </header>
+        <div class="workspace">
+          <aside id="sidebar" class="sidebar">
+            <label>
+              Search
+              <input id="search-input" type="search" placeholder="Filter files…" />
+            </label>
+            <div class="drop-hint">Drop files here to encrypt &amp; import</div>
+            <ul id="entry-list" class="entry-list"></ul>
+            <form id="add-form" class="stack add-form">
+              <label>
+                New file path
+                <input id="entry-name" placeholder="notes/example.md" required />
+              </label>
+              <label>
+                Text content
+                <textarea id="entry-content" rows="4" required></textarea>
+              </label>
+              <button type="submit">Add file</button>
+            </form>
+          </aside>
+          <section class="preview-panel">
+            <div class="preview-heading">
+              <h2 id="preview-title">Choose a file</h2>
+              <div class="preview-actions">
+                <button id="edit-button" class="secondary hidden" type="button">Edit</button>
+                <button id="save-edit-button" class="hidden" type="button">Save</button>
+                <button id="cancel-edit-button" class="secondary hidden" type="button">Cancel</button>
+                <button id="rename-button" class="secondary hidden" type="button">Rename</button>
+                <button id="copy-button" class="secondary hidden" type="button">Copy</button>
+                <button id="export-button" class="secondary hidden" type="button">Export</button>
+                <button id="delete-button" class="danger hidden" type="button">Delete</button>
+              </div>
+            </div>
+            <iframe
+              id="preview-frame"
+              title="Isolated file preview"
+              sandbox=""
+              referrerpolicy="no-referrer"
+            ></iframe>
+            <textarea
+              id="editor-textarea"
+              class="editor-textarea hidden"
+              spellcheck="false"
+            ></textarea>
+          </section>
+        </div>
+        <p id="vault-message" class="message" role="status"></p>
+      </section>
+    </main>
+
+    <dialog id="settings-dialog" class="settings-dialog">
+      <div class="dialog-header">
+        <h2>Security &amp; Vault Settings</h2>
+        <button id="close-settings-button" class="secondary" type="button">Close</button>
+      </div>
+      <div class="stack">
+        <div class="stats-grid">
+          <div>
+            <span class="stat-label">Entries</span>
+            <strong id="stat-entries">0</strong>
+          </div>
+          <div>
+            <span class="stat-label">Vault size</span>
+            <strong id="stat-size">0 B</strong>
+          </div>
+          <div>
+            <span class="stat-label">Reclaimable</span>
+            <strong id="stat-reclaimable">0 B</strong>
+          </div>
+        </div>
+
+        <div class="settings-row">
+          <label>
+            Auto-lock idle timeout
+            <select id="autolock-select">
+              <option value="60">1 minute</option>
+              <option value="300" selected>5 minutes</option>
+              <option value="900">15 minutes</option>
+              <option value="0">Disabled</option>
+            </select>
+          </label>
+          <label>
+            Theme
+            <select id="theme-select">
+              <option value="dark">Minimal Dark</option>
+              <option value="midnight">Midnight Blue</option>
+              <option value="light">Clean Light</option>
+            </select>
+          </label>
+        </div>
+
+        <form id="password-form" class="stack settings-section">
+          <h3>Rotate Passwords</h3>
+          <label>
+            Current main password
+            <input id="current-password" type="password" autocomplete="current-password" required />
+          </label>
+          <label>
+            New main password
+            <input id="new-password" type="password" autocomplete="new-password" required />
+          </label>
+          <label>
+            New self-destruct password (leave blank to remove)
+            <input id="new-burn-password" type="password" autocomplete="new-password" />
+          </label>
+          <label>
+            Self-destruct response
+            <select id="new-disguise-mode">
+              <option value="error">Show a password error</option>
+              <option value="decoy">Open an empty decoy vault</option>
+            </select>
+          </label>
+          <button type="submit">Update passwords</button>
+          <p id="settings-message" class="message" role="status"></p>
+        </form>
+      </div>
+    </dialog>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
