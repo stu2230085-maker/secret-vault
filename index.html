@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src ipc: http://ipc.localhost http://localhost:1420 ws://localhost:1420; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'"
+    />
+    <title>Secret Vault</title>
+  </head>
+  <body>
+    <main id="app">
+      <section id="lock-screen" class="lock-screen">
+        <div class="lock-card">
+          <p class="eyebrow">PRIVATE STORAGE</p>
+          <h1>Secret Vault</h1>
+          <p class="muted">Open an encrypted container or create a new one.</p>
+          <form id="open-form" class="stack">
+            <label>
+              Vault file
+              <input id="vault-path" value="vault.vlt" autocomplete="off" required />
+            </label>
+            <label>
+              Password
+              <input id="open-password" type="password" autocomplete="current-password" required />
+            </label>
+            <button type="submit">Open vault</button>
+          </form>
+          <details>
+            <summary>Create a new vault</summary>
+            <form id="create-form" class="stack details-form">
+              <label>
+                Main password
+                <input id="create-password" type="password" autocomplete="new-password" required />
+              </label>
+              <label>
+                Self-destruct password (optional)
+                <input id="burn-password" type="password" autocomplete="new-password" />
+              </label>
+              <label>
+                Self-destruct response
+                <select id="disguise-mode">
+                  <option value="error">Show a password error</option>
+                  <option value="decoy">Open an empty decoy vault</option>
+                </select>
+              </label>
+              <button type="submit">Create vault</button>
+            </form>
+          </details>
+          <p id="lock-message" class="message" role="status"></p>
+        </div>
+      </section>
+
+      <section id="vault-screen" class="vault-screen hidden">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">PRIVATE STORAGE</p>
+            <h1>Secret Vault</h1>
+          </div>
+          <div class="toolbar">
+            <button id="compact-button" class="secondary" type="button">Compact</button>
+            <button id="lock-button" class="secondary" type="button">Lock</button>
+          </div>
+        </header>
+        <div class="workspace">
+          <aside class="sidebar">
+            <label>
+              Search
+              <input id="search-input" type="search" placeholder="Filter files…" />
+            </label>
+            <ul id="entry-list" class="entry-list"></ul>
+            <form id="add-form" class="stack add-form">
+              <label>
+                File path
+                <input id="entry-name" placeholder="notes/example.md" required />
+              </label>
+              <label>
+                Text content
+                <textarea id="entry-content" rows="5" required></textarea>
+              </label>
+              <button type="submit">Add file</button>
+            </form>
+          </aside>
+          <section class="preview-panel">
+            <div class="preview-heading">
+              <h2 id="preview-title">Choose a file</h2>
+              <button id="delete-button" class="danger hidden" type="button">Delete file</button>
+            </div>
+            <iframe
+              id="preview-frame"
+              title="Isolated file preview"
+              sandbox=""
+              referrerpolicy="no-referrer"
+            ></iframe>
+          </section>
+        </div>
+        <p id="vault-message" class="message" role="status"></p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

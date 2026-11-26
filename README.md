@@ -3,9 +3,6 @@
 Windows 向けの **秘密の金庫（暗号化コンテナ）アプリケーション** です。  
 **Tauri v2 (Vite + TypeScript + Rust)** で構築し、**Antigravity Web** で開発、**GitHub Codespaces** で UI プレビューおよび Rust 単体テスト、**GitHub Actions** で Windows 用 `.exe` をビルドする構成を採用しています。
 
-> [!NOTE]
-> 現在このリポジトリは設計・ドキュメントフェーズです。実装は `AGENTS.md` のルールに従って段階的（Phase 1〜）に進めます。
-
 ---
 
 ## 主な特徴とセキュリティ設計
@@ -63,7 +60,7 @@ secret-vault/
 │   ├── vaultClient.ts             # Tauri IPC 窓口の一本化 & ブラウザ用モックモード切替
 │   ├── styles/
 │   │   └── theme.css              # :root CSS変数集約 (初期テーマ: ミニマルダーク)
-│   └── ...                        # ロック画面 / 2ペイン画面 (ツリー・検索・隔離プレビュー)
+│   └── main.ts                    # ロック画面 / 2ペイン UI
 ├── src-tauri/                     # バックエンド (Rust / Tauri v2)
 │   ├── capabilities/              # Tauri v2 権限設定
 │   ├── icons/                     # Windows ビルド用アイコン一式
@@ -75,7 +72,7 @@ secret-vault/
 │           ├── format.rs          # .vlt 読み書き・目次管理・Compact
 │           └── shred.rs           # 自爆パス検証・クリプトシュレッディング
 ├── AGENTS.md                      # AI エージェント開発ガイドライン
-└── SPEC.md                        # (任意) 詳細仕様書
+└── SPEC.md                        # 詳細なコンテナ・セキュリティ仕様
 ```
 
 ### ブラウザ単体プレビュー（モックモード）
@@ -111,5 +108,5 @@ secret-vault/
 ## ロードマップ
 
 - [x] **Phase 0**: リポジトリ初期化・`README.md` / `AGENTS.md` 整備
-- [ ] **Phase 1**: 環境ファイル一式 + `.vlt` コアエンジン（暗号化・復号・自爆・Compact）+ 最小 2 ペイン UI + `cargo test` / `npm run build` 検証
+- [x] **Phase 1**: 環境ファイル一式 + `.vlt` コアエンジン（暗号化・復号・自爆・Compact）+ 最小 2 ペイン UI
 - [ ] **Phase 2以降**: ファイルドラッグ＆ドロップ追加・フォルダ操作・パスワード変更・検索強化・テーマカスタマイズ拡張
